@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.dispatch import receiver
 from django.db.models.signals import post_save
 # Create your models here.
 
@@ -35,16 +36,17 @@ class Profile(models.Model):
             return str(self.full_name)
         else:
             return str(self.user.full_name)
-    def save(self,*args,**kwargs):
-        email_username,full_name=self.email.split('@')
-        if self.full_name == " " or self.full_name ==None:
-            self.full_name=self.user.username
-        if self.username =="" or self.username==None:
-            self.username= self.user.username
-        super(User,self).save(*args,**kwargs)
+    def save(self, *args, **kwargs):
+        if self.full_name == "" or self.full_name == None:
+            self.full_name == self.user.username
+        super(Profile,self).save(*args, **kwargs)
+
+@receiver(post_save, sender=User)
 def create_user_profile(sender,instance,created,**kwargs):
     if created:
         Profile.objects.create(user=instance)
+        
+@receiver(post_save, sender=User)
 def save_user_profile(sender,instance,**kwargs):
     instance.profile.save()
 
