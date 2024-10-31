@@ -9,7 +9,8 @@ class User(AbstractUser):
     username = models.CharField(unique=True,max_length=100)
     email=models.EmailField(unique=True)
     full_name=models.CharField(unique=True,max_length=100)
-    otp=models.CharField(unique=True,max_length=100)
+    otp=models.CharField(null=True,blank=True,max_length=100)
+    refresh_token=models.CharField(max_length=1000,null=True,blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS=['username']
@@ -45,7 +46,7 @@ class Profile(models.Model):
 def create_user_profile(sender,instance,created,**kwargs):
     if created:
         Profile.objects.create(user=instance)
-        
+
 @receiver(post_save, sender=User)
 def save_user_profile(sender,instance,**kwargs):
     instance.profile.save()
